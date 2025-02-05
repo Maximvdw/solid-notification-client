@@ -20,6 +20,8 @@ export class DiscoveryClient {
   async findService(resourceUri: string, channelType: ChannelType): Promise<SubscriptionService | null> {
 
     const storageDescription = await this.fetchStorageDescription(resourceUri)
+    // If no storage description is found, return null
+    if (storageDescription === null) return null
 
     // TODO handle multiple matching services
     const serviceNode = getOneMatchingQuad(storageDescription, null, NOTIFY.channelType, DataFactory.namedNode(channelType))?.subject
@@ -54,8 +56,10 @@ export class DiscoveryClient {
     return getStorageDescription(response.headers.get('Link'))
   }
 
-  async fetchStorageDescription(resourceUri): Promise<DatasetCore> {
+  async fetchStorageDescription(resourceUri): Promise<DatasetCore | null> {
     const storageDescriptionUri = await this.discoverStorageDescription(resourceUri)
+    // If no storage description is found, return null
+    if (!storageDescriptionUri) return null
     return this.fetchResource(storageDescriptionUri)
   }
 
